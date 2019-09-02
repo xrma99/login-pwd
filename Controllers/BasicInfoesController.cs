@@ -6,27 +6,41 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NewMylogin.Models;
+using System.Web;
+
 
 namespace NewMylogin.Controllers
 {
     public class BasicInfoesController : Controller
     {
         private readonly BasicInfoContext _context;
-
-        public BasicInfoesController(BasicInfoContext context)
+        private readonly BlogContext blgcontext;
+        public BasicInfoesController(BasicInfoContext context, BlogContext bcontext)
         {
             _context = context;
+            blgcontext = bcontext;
         }
 
         // GET: BasicInfoes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string SearchString)
         {
-            return View(await _context.BasicInfo.ToListAsync());
+            var users = from u in _context.BasicInfo
+                        select u;
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                users = users.Where(u => u.Alias.Contains(SearchString));
+            }
+            return View(await users.ToListAsync());
         }
 
         // GET: BasicInfoes/Details/5
         public async Task<IActionResult> Details(string Email)
         {
+            var bloglist = from blg in blgcontext.Blog
+                           where blg.AuthorEmail == Email
+                           select blg;
+            //var blog = bloglist.FirstOrDefault<Blog>();
+            
             if (Email == null)
             {
                 return NotFound();
@@ -39,7 +53,13 @@ namespace NewMylogin.Controllers
                 return NotFound();
             }
 
-            return View(basicInfo);
+            ViewBag.alias = basicInfo.Alias;
+            ViewBag.email = basicInfo.Email;
+            ViewBag.team= basicInfo.Team;
+            ViewBag.expertise= basicInfo.Expertise;
+            
+
+            return View(await bloglist.ToListAsync());
         }
 
         // GET: BasicInfoes/Create
@@ -98,7 +118,15 @@ namespace NewMylogin.Controllers
                 try
                 {
                     _context.Update(basicInfo);
+                    var blogs = from b in blgcontext.Blog
+                                where b.AuthorEmail == basicInfo.Email
+                                select b;
+                    foreach(var blog in blogs)
+                    {
+                        blog.AuthorAlias = basicInfo.Alias;
+                    }
                     await _context.SaveChangesAsync();
+                    await blgcontext.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {

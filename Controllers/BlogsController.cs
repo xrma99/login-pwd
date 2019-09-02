@@ -19,9 +19,15 @@ namespace NewMylogin.Controllers
         }
 
         // GET: Blogs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string SearchString)
         {
-            return View(await _context.Blog.ToListAsync());
+            var blogs = from b in _context.Blog
+                        select b;
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                blogs = blogs.Where(b=>b.AuthorAlias.Contains(SearchString));
+            }
+            return View(await blogs.ToListAsync());
         }
 
         // GET: Blogs/Details/5
