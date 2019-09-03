@@ -53,6 +53,7 @@ namespace NewMylogin.Controllers
                 return NotFound();
             }
 
+            ViewBag.id = basicInfo.Id;
             ViewBag.alias = basicInfo.Alias;
             ViewBag.email = basicInfo.Email;
             ViewBag.team= basicInfo.Team;
