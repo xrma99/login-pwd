@@ -10,3 +10,4 @@ The latter one has lots of code folded into Package. Please refer to the [blog](
 
 ## Many thanks to
 - https://stackoverflow.com/questions/50802781/where-are-the-login-and-register-pages-in-an-aspnet-core-scaffolded-app
+- https://blog.csdn.net/huangtianzhu123/article/details/77814914
